@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Literal
-from models import ExchangeSymbol
-from database import async_upsert_dataframe
+from databases.mysql import ExchangeSymbol, async_upsert_dataframe
 from aiohttp import ClientSession
 
 
