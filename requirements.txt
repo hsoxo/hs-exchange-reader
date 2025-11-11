@@ -1,0 +1,9 @@
+SQLAlchemy==2.0.*
+apscheduler==3.11.0
+requests[socks]
+python-dotenv==1.1.1
+loguru==0.7.3
+pymysql==1.1.2
+cryptography==46.0.3
+aiomysql==0.3.2
+aiohttp==3.13.2
