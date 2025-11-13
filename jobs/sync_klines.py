@@ -1,5 +1,4 @@
 import asyncio
-import sys
 from typing import Literal
 
 from constants import InstType
@@ -15,27 +14,6 @@ from exchanges.okx import OkxPerpClient, OkxSpotClient
 from exchanges.woox import WooxPerpClient, WooxSpotClient
 from loguru import logger as _logger
 from sqlalchemy import text
-
-
-def ensure_extra_fields(record):
-    for key in ("job_id", "exchange", "inst_type", "symbol"):
-        record["extra"].setdefault(key, "")
-    return record
-
-
-_logger = _logger.patch(ensure_extra_fields)
-
-# ✅ 注意：这里不再使用 .get()，所有 key 都 guaranteed 存在
-LOG_FORMAT = (
-    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
-    "<level>{level:<5}</level> | "
-    "<cyan>{extra[job_id]}</cyan> "
-    "[{extra[inst_type]}:{extra[exchange]:<7}]{extra[symbol]} | "
-    "<level>{message}</level>"
-)
-
-_logger.remove()
-_logger.add(sys.stdout, format=LOG_FORMAT, enqueue=True)
 
 
 async def get_symbols(exchange: str, base_asset: [str], quote_asset: str, inst_type: InstType):
