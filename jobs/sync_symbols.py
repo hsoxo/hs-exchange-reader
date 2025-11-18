@@ -1,6 +1,6 @@
 import asyncio
 
-from exchanges.aster import AsterPerpClient
+from exchanges.aster import AsterPerpClient, AsterSpotClient
 from exchanges.binance import BinancePerpClient, BinanceSpotClient
 from exchanges.bitget import BitgetPerpClient, BitgetSpotClient
 from exchanges.bitmart import BitmartPerpClient, BitmartSpotClient
@@ -17,6 +17,7 @@ from loguru import logger as _logger
 async def sync_symbols():
     logger = _logger.bind(job_id="SYMBOLS")
     clients = [
+        AsterSpotClient(logger),
         AsterPerpClient(logger),
         BinanceSpotClient(logger),
         BinancePerpClient(logger),
