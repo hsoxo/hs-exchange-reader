@@ -49,7 +49,10 @@ class BaseClient(ABC):
         url = f"{self.base_url}{endpoint}"
         session = await self._get_session()
         if method == "GET":
-            self.logger.debug(f"Request: {method} {url}?{urlencode(params)}")
+            if params:
+                self.logger.debug(f"Request: {method} {url}?{urlencode(params)}")
+            else:
+                self.logger.debug(f"Request: {method} {url}")
             response = await session.get(url, params=params, headers=headers)
         elif method == "POST":
             self.logger.debug(f"Request: {method} {url}")

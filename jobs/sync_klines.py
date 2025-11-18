@@ -8,7 +8,9 @@ from exchanges.binance import BinancePerpClient, BinanceSpotClient
 from exchanges.bitget import BitgetPerpClient, BitgetSpotClient
 from exchanges.bitmart import BitmartPerpClient, BitmartSpotClient
 from exchanges.bybit import BybitPerpClient, BybitSpotClient
+from exchanges.coinbase import CoinbaseSpotClient
 from exchanges.gate import GatePerpClient, GateSpotClient
+from exchanges.kraken import KrakenSpotClient
 from exchanges.mexc import MexcPerpClient, MexcSpotClient
 from exchanges.okx import OkxPerpClient, OkxSpotClient
 from exchanges.woox import WooxPerpClient, WooxSpotClient
@@ -122,6 +124,20 @@ async def update_kline_woox(_logger, coins: [str], interval: Literal["1m", "1h",
     symbols = await get_symbols("woox", coins, "USDT", InstType.PERP)
     for i in symbols:
         await perp_client.update_kline(i, interval, 1735689600000)
+
+
+async def update_kline_coinbase(_logger, coins: [str], interval: Literal["1m", "1h", "1d"]):
+    spot_client = CoinbaseSpotClient(_logger)
+    symbols = await get_symbols("coinbase", coins, "USDT", InstType.SPOT)
+    for i in symbols:
+        await spot_client.update_kline(i, interval, 1735689600000)
+
+
+async def update_kline_kraken(_logger, coins: [str], interval: Literal["1m", "1h", "1d"]):
+    spot_client = KrakenSpotClient(_logger)
+    symbols = await get_symbols("kraken", coins, "USDT", InstType.SPOT)
+    for i in symbols:
+        await spot_client.update_kline(i, interval, 1735689600000)
 
 
 async def sync_klines_1m():
