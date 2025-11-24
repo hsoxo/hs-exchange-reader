@@ -8,7 +8,6 @@ from urllib.parse import urlencode
 
 from aiohttp import ClientSession, ClientTimeout
 from constants import INTERVAL_TO_SECONDS
-from databases.clickhouse import Kline1d, Kline1h, Kline1m
 from databases.doris import get_doris, get_stream_loader
 from databases.mysql import ExchangeSymbol, async_upsert, sync_engine
 from sqlalchemy import text
@@ -272,11 +271,6 @@ class BaseClient(ABC):
         end_ms: int | None = None,
     ):
         self.logger.info(f"Updating kline: {interval} [{self.exchange_name}] ({symbol})")
-        model = Kline1m
-        if interval == "1h":
-            model = Kline1h
-        elif interval == "1d":
-            model = Kline1d
         async for klines in self.get_kline(symbol, interval, start_ms, end_ms):
             for kline in klines:
                 kline["dt"] = datetime.fromtimestamp(kline["timestamp"] / 1000).strftime("%Y-%m-%d %H:%M:%S")
