@@ -3,7 +3,7 @@ when:
   branch: main
 
 steps:
-  build-prod:
+  build-staging:
     image: woodpeckerci/plugin-kaniko
     settings:
       registry: 10.10.10.112:5000
@@ -13,7 +13,9 @@ steps:
       skip_tls_verify: true
       cache: true
 
-  deploy-prod:
+  deploy-staging:
+    depends_on:
+      - build-staging
     image: alpine
     environment:
       HOST: 10.10.10.137
@@ -48,7 +50,7 @@ steps:
             docker run -d \
               --name clx-etl \
               --restart always \
-              -e ENV=production \
+              -e ENV=staging \
               -e DORIS_HOST=192.168.50.136 \
               -e DORIS_HTTP_PORT=8030 \
               -e DORIS_PORT=9030 \
@@ -84,23 +86,27 @@ steps:
           "
 
   notify-success:
+    when:
+      status: success
     depends_on:
-      - deploy-prod
+      - deploy-staging
     image: appleboy/drone-discord
     settings:
       webhook_id:
         from_secret: DISCORD_WEBHOOK_ID
       webhook_token:
         from_secret: DISCORD_WEBHOOK_TOKEN
-      message: "✅ STG Deploy Success: clx-etl `${CI_COMMIT_TAG}`"
+      message: "✅ [`clx-etl` : `${CI_COMMIT_SHA:0:8}`] Staging Deploy Success"
 
   notify-failure:
+    when:
+      status: failure
     depends_on:
-      - deploy-prod
+      - deploy-staging
     image: appleboy/drone-discord
     settings:
       webhook_id:
         from_secret: DISCORD_WEBHOOK_ID
       webhook_token:
         from_secret: DISCORD_WEBHOOK_TOKEN
-      message: "❌ STG Deploy Failed: clx-etl `${CI_COMMIT_TAG}`"
+      message: "❌ [`clx-etl` : `${CI_COMMIT_SHA:0:8}`] Staging Deploy Failed"
