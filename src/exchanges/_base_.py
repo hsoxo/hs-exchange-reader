@@ -49,22 +49,50 @@ class BaseClient(ABC):
             self.session = await get_session()
         return self.session
 
-    async def send_request(self, method: Literal["GET", "POST"], endpoint: str, params=None, headers=None) -> dict:
+    async def send_request(
+        self,
+        method: Literal["GET", "POST"],
+        endpoint: str,
+        params=None,
+        headers=None,
+        retries: int = 3,  # 最大重试次数
+        retry_delay: float = 1,  # 每次重试等待秒数
+    ) -> dict:
         if endpoint.startswith("http"):
             url = endpoint
         else:
             url = f"{self.base_url}{endpoint}"
+
+        if method == "GET" and params:
+            url += "?" + urlencode(params)
+
         session = await self._get_session()
-        if method == "GET":
-            if params:
-                self.logger.debug(f"Request: {method} {url}?{urlencode(params)}")
-            else:
+        final_headers = {**session.headers, **(headers or {})}
+
+        for attempt in range(1, retries + 1):
+            if method == "GET":
                 self.logger.debug(f"Request: {method} {url}")
-            response = await session.get(url, params=params, headers=headers)
-        elif method == "POST":
-            self.logger.debug(f"Request: {method} {url}")
-            response = await session.post(url, json=params, headers=headers)
-        return await response.json()
+                response = await session.get(url, headers=final_headers)
+
+            elif method == "POST":
+                self.logger.debug(f"Request: {method} {url}")
+                response = await session.post(url, json=params, headers=final_headers)
+
+            if response.status == 200:
+                return await response.json()
+
+            self.logger.warning(
+                f"HTTP {response.status} for {method} {url} (attempt {attempt}/{retries}), retrying in {retry_delay}s..."
+            )
+
+            if attempt < retries:
+                await asyncio.sleep(retry_delay)
+
+        body = await response.text()
+        self.logger.error(
+            f"Request failed after {retries} attempts: {method} {url}, last status={response.status}, body={body}"
+        )
+        raise RuntimeError(f"HTTP request failed ({response.status}): {url}")
 
     async def close(self):
         if self.session and not self.session.closed:

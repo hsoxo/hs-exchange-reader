@@ -2,8 +2,11 @@ import logging
 import os
 import sys
 
+from dotenv import load_dotenv
 from loguru import logger as loguru_logger
 import structlog
+
+load_dotenv()
 
 
 def configure_dev_logging():
@@ -41,6 +44,22 @@ def rename_keys(_, __, event_dict):
     return event_dict
 
 
+def format_caller(_, __, event_dict):
+    module = event_dict.get("module")
+    func = event_dict.get("func_name")
+    lineno = event_dict.get("lineno")
+
+    if module and func and lineno:
+        event_dict["caller"] = f"{module}:{func}:{lineno}"
+
+    # 清理不需要的字段
+    event_dict.pop("module", None)
+    event_dict.pop("func_name", None)
+    event_dict.pop("lineno", None)
+
+    return event_dict
+
+
 def configure_prod_logging():
     """
     Production = pure structlog JSON
@@ -53,7 +72,7 @@ def configure_prod_logging():
     logging.basicConfig(
         stream=sys.stdout,
         level=logging.DEBUG,
-        format="%(message)s",  # 必须添加这一行！
+        format="%(message)s",
         force=True,
     )
 
@@ -63,13 +82,45 @@ def configure_prod_logging():
             structlog.contextvars.merge_contextvars,  # merge bind() contextvars
             structlog.stdlib.add_log_level,
             structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.CallsiteParameterAdder(
+                parameters=[
+                    structlog.processors.CallsiteParameter.FUNC_NAME,
+                    structlog.processors.CallsiteParameter.MODULE,
+                    structlog.processors.CallsiteParameter.LINENO,
+                ]
+            ),
+            format_caller,
             rename_keys,
             structlog.processors.JSONRenderer(),
         ],
         wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
-        logger_factory=structlog.stdlib.LoggerFactory(),
+        logger_factory=structlog.PrintLoggerFactory(),
         context_class=dict,
     )
+
+    class InterceptHandler(logging.Handler):
+        """
+        Redirect Python logging (APScheduler, uvicorn, urllib3...)
+        into structlog, with caller preserved.
+        """
+
+        def emit(self, record):
+            try:
+                level = record.levelno
+            except Exception:
+                level = logging.INFO
+
+            struct_logger = structlog.get_logger(record.name)
+
+            # attach caller from logging
+            caller = f"{record.name}:{record.funcName}:{record.lineno}"
+
+            struct_logger.bind(caller=caller).log(level, record.getMessage())
+
+    # Override root logger handler
+    root_logger = logging.getLogger()
+    root_logger.handlers = [InterceptHandler()]
+    root_logger.setLevel(logging.INFO)
 
     return structlog.get_logger()  # PROD 只用 structlog
 

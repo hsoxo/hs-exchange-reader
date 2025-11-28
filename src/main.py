@@ -1,3 +1,5 @@
+from utils.logger import logger  # noqa: I001
+
 import asyncio
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -7,7 +9,6 @@ from jobs.sync_klines import sync_klines_1h, sync_klines_1m
 from jobs.sync_long_short_ratio import sync_long_short_ratio_1d, sync_long_short_ratio_1h, sync_long_short_ratio_5m
 from jobs.sync_symbols import sync_symbols
 from utils.http_session import shutdown
-from utils.logger import logger
 from utils.start_logo import print_banner
 
 

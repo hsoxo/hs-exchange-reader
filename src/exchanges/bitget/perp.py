@@ -125,11 +125,17 @@ class BitgetPerpClient(BaseClient):
 
         interval: "5m","15m","30m","1h","2h","4h","6h","12h","1d"
         """
+        if symbol.base_asset in ["ADA", "ASTER", "BNB", "DOGE", "GIGGLE", "LTC"]:
+            return []
+
+        def no_data(d):
+            return d["code"] == "40054"
+
         s = symbol.symbol.replace("_UMCBL", "")
         top_position_ratio = await self.send_request(
             "GET", "/api/v2/mix/market/position-long-short", params={"symbol": s, "period": interval}
         )
-        if top_position_ratio["code"] == "40054":
+        if no_data(top_position_ratio):
             return []
 
         pos_dict = {}
@@ -142,6 +148,8 @@ class BitgetPerpClient(BaseClient):
         top_account_ratio = await self.send_request(
             "GET", "/api/v2/mix/market/account-long-short", params={"symbol": s, "period": interval}
         )
+        if no_data(top_account_ratio):
+            return []
         acc_dict = {}
         for i in top_account_ratio["data"]:
             acc_dict[align_to_5m(i["ts"])] = {
@@ -152,6 +160,8 @@ class BitgetPerpClient(BaseClient):
         retail_ratio = await self.send_request(
             "GET", "/api/v2/mix/market/long-short", params={"symbol": s, "period": interval}
         )
+        if no_data(retail_ratio):
+            return []
         retail_dict = {}
         for i in retail_ratio["data"]:
             retail_dict[align_to_5m(i["ts"])] = {
