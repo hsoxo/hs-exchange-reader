@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 
 from exchanges._base_ import BaseClient
 from exchanges.binance import BinancePerpClient
@@ -9,7 +10,12 @@ from utils.logger import logger as _logger
 
 
 async def update_funding_rate(client: BaseClient):
-    await client.update_funding_rate()
+    try:
+        await client.update_funding_rate()
+    except Exception as e:
+        _logger.error(f"Failed to update funding rate for {client.exchange_name}: {e}")
+        traceback.print_exc()
+        await asyncio.sleep(1)
 
 
 async def sync_funding_rate():

@@ -6,12 +6,13 @@ import traceback
 from typing import Literal
 from urllib.parse import urlencode
 
-from aiohttp import ClientSession, ClientTimeout
+from aiohttp import ClientSession
+from constants import INTERVAL_TO_SECONDS
 from sqlalchemy import text
 
-from constants import INTERVAL_TO_SECONDS
 from databases.doris import get_doris, get_stream_loader
 from databases.mysql import ExchangeSymbol, async_upsert, sync_engine
+from utils.http_session import get_session
 
 
 class BaseClient(ABC):
@@ -45,7 +46,7 @@ class BaseClient(ABC):
 
     async def _get_session(self) -> ClientSession:
         if self.session is None or self.session.closed:
-            self.session = ClientSession(timeout=ClientTimeout(total=15))
+            self.session = await get_session()
         return self.session
 
     async def send_request(self, method: Literal["GET", "POST"], endpoint: str, params=None, headers=None) -> dict:

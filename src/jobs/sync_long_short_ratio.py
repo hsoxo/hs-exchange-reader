@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from typing import Literal
 
 from constants import InstType
@@ -17,12 +18,17 @@ from .utils import get_symbols
 async def update_long_short_ratio(client: BaseClient, coins: [str], interval: Literal["5m", "1h", "1d"]):
     symbols = await get_symbols(client.exchange_name, coins, "USDT", InstType.PERP)
     for i in symbols:
-        if interval == "5m":
-            await client.update_long_short_ratio_5m(i)
-        elif interval == "1h":
-            await client.update_long_short_ratio_1h(i)
-        elif interval == "1d":
-            await client.update_long_short_ratio_1d(i)
+        try:
+            if interval == "5m":
+                await client.update_long_short_ratio_5m(i)
+            elif interval == "1h":
+                await client.update_long_short_ratio_1h(i)
+            elif interval == "1d":
+                await client.update_long_short_ratio_1d(i)
+        except Exception as e:
+            _logger.error(f"Failed to update long short ratio for {client.exchange_name} {i}: {e}")
+            traceback.print_exc()
+            await asyncio.sleep(1)
 
 
 async def sync_long_short_ratio_5m():
