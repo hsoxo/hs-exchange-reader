@@ -1,8 +1,6 @@
 import asyncio
 from typing import Literal
 
-from loguru import logger as _logger
-
 from exchanges._base_ import BaseClient
 from exchanges.aster import AsterPerpClient
 from exchanges.binance import BinancePerpClient, BinanceSpotClient
@@ -14,6 +12,7 @@ from exchanges.kraken import KrakenSpotClient
 from exchanges.mexc import MexcPerpClient, MexcSpotClient
 from exchanges.okx import OkxPerpClient, OkxSpotClient
 from exchanges.woox import WooxPerpClient, WooxSpotClient
+from utils.logger import logger as _logger
 
 from .constants import COINS
 from .utils import get_symbols

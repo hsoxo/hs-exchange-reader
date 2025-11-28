@@ -174,7 +174,7 @@ class BitgetPerpClient(BaseClient):
                 "updated_at": datetime.now(),
             }
             merged.append(row)
-
+        await asyncio.sleep(0.3)
         return merged
 
     async def get_funding_rate(self, next_funding_times_by_symbol: dict[str, int], *args, **kwargs):
@@ -214,11 +214,11 @@ class BitgetPerpClient(BaseClient):
 
 
 if __name__ == "__main__":
-    from loguru import logger as _logger
     from sqlalchemy import select
     from sqlalchemy.orm import Session
 
     from databases.mysql import sync_engine
+    from utils.logger import logger as _logger
 
     client = BitgetPerpClient(_logger)
 

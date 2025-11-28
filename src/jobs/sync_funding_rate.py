@@ -1,12 +1,11 @@
 import asyncio
 
-from loguru import logger as _logger
-
 from exchanges._base_ import BaseClient
 from exchanges.binance import BinancePerpClient
 from exchanges.bitget import BitgetPerpClient
 from exchanges.bybit import BybitPerpClient
 from exchanges.okx import OkxPerpClient
+from utils.logger import logger as _logger
 
 
 async def update_funding_rate(client: BaseClient):

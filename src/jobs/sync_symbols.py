@@ -1,7 +1,5 @@
 import asyncio
 
-from loguru import logger as _logger
-
 from exchanges.aster import AsterPerpClient, AsterSpotClient
 from exchanges.binance import BinancePerpClient, BinanceSpotClient
 from exchanges.bitget import BitgetPerpClient, BitgetSpotClient
@@ -13,6 +11,7 @@ from exchanges.kraken import KrakenSpotClient
 from exchanges.mexc import MexcPerpClient, MexcSpotClient
 from exchanges.okx import OkxPerpClient, OkxSpotClient
 from exchanges.woox import WooxPerpClient, WooxSpotClient
+from utils.logger import logger as _logger
 
 
 async def sync_symbols():

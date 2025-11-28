@@ -223,11 +223,11 @@ class BinancePerpClient(BaseClient):
 if __name__ == "__main__":
     import asyncio
 
-    from loguru import logger as _logger
     from sqlalchemy import select
     from sqlalchemy.orm import Session
 
     from databases.mysql import sync_engine
+    from utils.logger import logger as _logger
 
     client = BinancePerpClient(_logger)
 

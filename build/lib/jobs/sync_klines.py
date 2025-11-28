@@ -14,8 +14,8 @@ from exchanges.kraken import KrakenSpotClient
 from exchanges.mexc import MexcPerpClient, MexcSpotClient
 from exchanges.okx import OkxPerpClient, OkxSpotClient
 from exchanges.woox import WooxPerpClient, WooxSpotClient
-from loguru import logger as _logger
 from sqlalchemy import text
+from utils.logger import logger as log
 
 
 async def get_symbols(exchange: str, base_asset: [str], quote_asset: str, inst_type: InstType):
@@ -159,7 +159,7 @@ async def sync_klines_1m():
 
 
 async def sync_klines_1h():
-    logger = _logger.bind(job_id="KLINE[1h]")
+    logger = log.bind(job_id="KLINE[1h]")
     coins = ["BTC", "ETH", "SOL", "BNB", "XRP", "LTC", "ADA", "DOGE", "GIGGLE", "ZEC", "AIA", "ASTER"]
     updaters = [
         update_kline_aster,

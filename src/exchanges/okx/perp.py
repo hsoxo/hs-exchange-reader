@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import ClassVar
 
 from constants import InstType, SymbolStatus
+
 from databases.mysql.models import ExchangeSymbol
 from exchanges._base_ import BaseClient
 from utils import align_to_5m, precision
@@ -233,11 +234,11 @@ class OkxPerpClient(BaseClient):
 if __name__ == "__main__":
     import asyncio
 
-    from loguru import logger as _logger
     from sqlalchemy import select
     from sqlalchemy.orm import Session
 
     from databases.mysql import ExchangeSymbol, sync_engine
+    from utils.logger import logger as _logger
 
     client = OkxPerpClient(_logger)
 

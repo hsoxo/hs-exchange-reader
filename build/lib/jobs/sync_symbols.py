@@ -11,7 +11,7 @@ from exchanges.kraken import KrakenSpotClient
 from exchanges.mexc import MexcPerpClient, MexcSpotClient
 from exchanges.okx import OkxPerpClient, OkxSpotClient
 from exchanges.woox import WooxPerpClient, WooxSpotClient
-from loguru import logger as _logger
+from utils.logger import logger as _logger
 
 
 async def sync_symbols():

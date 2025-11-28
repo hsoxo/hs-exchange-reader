@@ -2,13 +2,13 @@ import asyncio
 from typing import Literal
 
 from constants import InstType
-from loguru import logger as _logger
 
 from exchanges._base_ import BaseClient
 from exchanges.binance import BinancePerpClient
 from exchanges.bitget import BitgetPerpClient
 from exchanges.bybit import BybitPerpClient
 from exchanges.okx import OkxPerpClient
+from utils.logger import logger as _logger
 
 from .constants import COINS
 from .utils import get_symbols

@@ -233,12 +233,12 @@ class BybitPerpClient(BaseClient):
 
 
 if __name__ == "__main__":
-    from loguru import logger as _logger
     from sqlalchemy import select
     from sqlalchemy.orm import Session
 
     from databases.mysql import sync_engine
     from databases.mysql.models import ExchangeSymbol
+    from utils.logger import logger as _logger
 
     client = BybitPerpClient(_logger)
 
