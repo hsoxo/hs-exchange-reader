@@ -10,3 +10,9 @@ async def sync_macro_indicators():
     logger.info("Starting sync_macro_indicators...")
     results = await get_macro_klines(logger)
     await get_stream_loader().send_rows(results, "macro_kline_raw_1m")
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(sync_macro_indicators())

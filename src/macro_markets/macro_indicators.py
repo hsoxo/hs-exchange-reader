@@ -59,7 +59,7 @@ async def get_macro_klines(logger):
         try:
             df = await task
         except Exception as e:
-            logger.error(f"❌ 下载失败 {key}: {e}")
+            logger.warning(f"Failed to download {key}: {e}")
             continue
 
         if df is None or df.empty:

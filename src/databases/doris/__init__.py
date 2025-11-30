@@ -10,6 +10,8 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+from utils.logger import logger
+
 load_dotenv()
 
 
@@ -223,6 +225,7 @@ class DorisStreamLoader:
             return result
         else:
             print(rows)
+            logger.error(f"StreamLoad to {self.database}.{table} failed: {result}")
             raise Exception(f"StreamLoad to {self.database}.{table} failed: {result}")
 
 
