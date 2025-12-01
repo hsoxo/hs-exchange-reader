@@ -68,9 +68,12 @@ def configure_prod_logging():
     - no loguru
     """
     loguru_logger.remove()
-
-    log_dir = "/app/logs"
-    os.makedirs(log_dir, exist_ok=True)
+    try:
+        log_dir = "/app/logs"
+        os.makedirs(log_dir, exist_ok=True)
+    except PermissionError:
+        log_dir = "/tmp/logs"
+        os.makedirs(log_dir, exist_ok=True)
 
     file_handler = TimedRotatingFileHandler(
         filename=os.path.join(log_dir, "app.log"),

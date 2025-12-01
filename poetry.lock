@@ -1495,6 +1495,18 @@ files = [
 ]
 
 [[package]]
+name = "perfect"
+version = "0.0.1"
+description = "The @perfect decorator - a utility library which makes it simpler to create flexible decorators"
+optional = false
+python-versions = ">=3.6,<4.0"
+groups = ["main"]
+files = [
+    {file = "perfect-0.0.1-py3-none-any.whl", hash = "sha256:eb6eab0a9dce012aa80e21f0ad7d429e3edb106de0b2d7b85c99e8cd10c5c5b3"},
+    {file = "perfect-0.0.1.tar.gz", hash = "sha256:80cf69c13ee92114106591b56d38e579567b4c571de92f8370c5e23a82008477"},
+]
+
+[[package]]
 name = "platformdirs"
 version = "4.5.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
@@ -2413,4 +2425,4 @@ repair = ["scipy (>=1.6.3)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "20a92843221a7629e47e4b2bf1221e2db27e299c19b051d62eae631a1aec76f6"
+content-hash = "95b9c38e6963d2c75aba5e30d02f4b0342248617d4197b75b259bb7cfff364f7"

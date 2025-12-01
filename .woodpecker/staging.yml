@@ -16,82 +16,14 @@ steps:
   deploy-staging:
     depends_on:
       - build-staging
-    image: alpine
+    image: prefecthq/prefect:3.6.4-python3.13
     environment:
-      HOST: 10.10.10.137
-      REGISTRY: 10.10.10.112:5000
-      IMAGE_NAME: coinluxer/clx-etl
-
-      CONTAINER_NAME: clx-etl
-
-      SSH_PRIVATE_KEY:
-        from_secret: SSH_PRIVATE_KEY
-      SSH_KNOWN_HOSTS:
-        from_secret: SSH_KNOWN_HOSTS
-      DORIS_PASSWORD:
-        from_secret: DORIS_PASSWORD_STG
-      MYSQL_PASSWORD:
-        from_secret: MYSQL_PASSWORD_STG
+      PREFECT_API_URL: http://10.10.10.101:4200/api
+      ENV: staging
+      IMAGE_URL: 10.10.10.112:5000/coinluxer/clx-etl:${CI_COMMIT_SHA:0:8}
 
     commands:
-      - apk add openssh-client docker-cli
-      - mkdir -p ~/.ssh
-      - printf "%s" "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-      - chmod 600 ~/.ssh/id_rsa
-      - printf "%s" "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-
-      - |
-          ssh -o StrictHostKeyChecking=yes hhe@$HOST "
-            set -xe;
-            mkdir -p /opt/coinluxer/clx-etl/logs;
-
-            docker pull $REGISTRY/$IMAGE_NAME:${CI_COMMIT_SHA:0:8};
-
-            docker stop $CONTAINER_NAME || true;
-            docker rm $CONTAINER_NAME || true;
-
-            docker run -d \
-              --name $CONTAINER_NAME \
-              --restart always \
-              --log-driver json-file \
-              --log-opt max-size=50m \
-              --log-opt max-file=2 \
-              -e ENV=staging \
-              -e VERSION=${CI_COMMIT_SHA} \
-              -e DORIS_HOST=192.168.50.136 \
-              -e DORIS_HTTP_PORT=8030 \
-              -e DORIS_PORT=9030 \
-              -e DORIS_USER=etl \
-              -e DORIS_PASSWORD=$DORIS_PASSWORD \
-              -e DORIS_DB=clx_stg \
-              -e MYSQL_HOST=192.168.50.137 \
-              -e MYSQL_PORT=3306 \
-              -e MYSQL_USER=etl \
-              -e MYSQL_PASSWORD=$MYSQL_PASSWORD \
-              -e MYSQL_DB=clx_stg \
-              -v /opt/coinluxer/clx-etl/logs:/app/logs \
-              $REGISTRY/$IMAGE_NAME:${CI_COMMIT_SHA:0:8};
-
-            echo 'Waiting 15 seconds...';
-            sleep 15;
-
-            STATUS=\$(docker inspect -f '{{.State.Status}}' $CONTAINER_NAME)
-            RESTARTS=\$(docker inspect -f '{{.RestartCount}}' $CONTAINER_NAME)
-
-            if [ \"\$STATUS\" != \"running\" ]; then
-              echo '❌ STG container is NOT running:' \$STATUS
-              docker logs $CONTAINER_NAME
-              exit 1
-            fi
-
-            if [ \$RESTARTS -gt 0 ]; then
-              echo '❌ STG container restarted' \$RESTARTS 'times.'
-              docker logs $CONTAINER_NAME
-              exit 1
-            fi
-
-            echo 'STG OK 🚀';
-          "
+      - python src/deploy.py
 
   notify-success:
     when:
