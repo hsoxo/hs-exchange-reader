@@ -6,17 +6,17 @@ from urllib.parse import quote
 
 import aiohttp
 from dotenv import load_dotenv
+from prefect import get_run_logger
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-
-from utils.logger import logger
 
 load_dotenv()
 
 
 class DorisAsyncDB:
     def __init__(self):
+        self.logger = get_run_logger()
         db_host = os.getenv("DORIS_HOST", "127.0.0.1")
         db_user = os.getenv("DORIS_USER", "root")
         db_pass = os.getenv("DORIS_PASSWORD", "")
@@ -61,6 +61,7 @@ class DorisAsyncDB:
 
 class DorisStreamLoader:
     def __init__(self):
+        self.logger = get_run_logger()
         self.host = os.environ.get("DORIS_HOST")
         self.http_port = os.environ.get("DORIS_HTTP_PORT", "8030")  # FE HTTP PORT
         self.user = os.environ.get("DORIS_USER")
@@ -224,8 +225,9 @@ class DorisStreamLoader:
         if resp.status == 200 and result.get("Status") == "Success":
             return result
         else:
-            print(rows)
-            logger.error(f"StreamLoad to {self.database}.{table} failed: {result}")
+            self.logger.info(column_names)
+            self.logger.info(csv_data)
+            self.logger.error(f"StreamLoad to {self.database}.{table} failed: {result}")
             raise Exception(f"StreamLoad to {self.database}.{table} failed: {result}")
 
 
